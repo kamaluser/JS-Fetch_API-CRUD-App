@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Application with Fetch API</title>
+</head>
+
+<body>
+    <h1>CRUD Application with Fetch API</h1>
+    <button onclick="goToCreatePage()">Create Post</button>
+    <hr>
+    <table id="posts">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Body</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const baseURL = 'https://jsonplaceholder.typicode.com/posts';
+
+        async function fetchPosts() {
+            const response = await fetch(baseURL);
+            const posts = await response.json();
+            const tableBody = document.getElementById('posts').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            posts.forEach(post => {
+                const row = document.createElement('tr');
+
+                const title = document.createElement('td');
+                title.textContent = post.title;
+                row.appendChild(title);
+
+                const body = document.createElement('td');
+                body.textContent = post.body;
+                row.appendChild(body);
+
+                const td = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deletePost(post.id);
+                td.appendChild(deleteButton);
+                row.appendChild(td);
+                tableBody.appendChild(row);
+            });
+        }
+
+
+        function deletePost(postId) {
+
+            const confirmed = confirm("Are you sure you want to delete this post?");
+            if (!confirmed) {
+                return; 
+            }
+            fetch(`${baseURL}/${postId}`, {
+                method: 'DELETE',
+            })
+                .then((response) => response.json)
+                .then(data =>
+                    console.log('Post deleted successfully:', data));
+
+            fetchPosts();
+        }
+
+        function goToCreatePage() {
+            window.location.href = 'create.html';
+        }
+
+        fetchPosts();
+
+
+        function validateInput(input) {
+        const value = input.value.trim();
+
+        if (value.length < 12) {
+            input.style.borderColor = 'red';
+
+            const errorMessage = document.createElement('span');
+            errorMessage.style.color = 'red';
+            errorMessage.textContent = `Minimum 12 characters required`;
+            errorMessage.setAttribute('id', `${input.id}-error`);
+
+            if (!document.getElementById(`${input.id}-error`)) {
+                input.pare.insertBefore(errorMessage, input.nextSibling);
+            }
+        } else {
+            input.style.borderColor = '';
+            const errorElement = document.getElementById(`${input.id}-error`);
+            if (errorElement) {
+                errorElement.remove();
+            }
+        }
+    }
+    </script>
+</body>
+
+</html>
